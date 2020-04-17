@@ -53,7 +53,5 @@ Experimentally, I was able to solve for N<20, but then for probably the first ti
 21      true    0.111804ms
 ```
 
-I at least was able to make some cool art so far:
-![https://i.imgur.com/2rQupUD.png](https://i.imgur.com/2rQupUD.png)
-
-![https://i.imgur.com/Bc5ZRJE.png](https://i.imgur.com/Bc5ZRJE.png)
+It also makes cool art:
+![](./triads.png)
