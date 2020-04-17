@@ -51,10 +51,11 @@ const lastDot = N * (N+1) / 2; // Formula for Nth triangular number
 const used = new Array(lastDot);
 
 const graph = generateGraph(N);
-
+let runs = 0;
 const triads = [];
-
+const MAX_RUNS = 9000000
 function recurseTriad(used, dot) {
+	if(runs++ > MAX_RUNS) return false;
 	if (dot == lastDot-1) {
 		return used.filter(u => !u).length == 0; 
 	}
@@ -105,20 +106,16 @@ function recurseTriad(used, dot) {
 	}
 }
 
-if ((lastDot+1) % 3 == 0) {
-	console.log(N + ": False");
-	return false;
-}
-
-const works = recurseTriad(used, 0);
+const works = lastDot%3 == 0 ? recurseTriad(used, 0) : false;
 return {
 	works,
 	triads,
+	runs
 }
 
 }
 
-function printTriangularGrid(N, triads=[]) {
+function printTriangularGrid(N, triads=[], symbol) {
 	let row = 1;
 	let i = 0;
 	const grid = []
@@ -135,14 +132,18 @@ function printTriangularGrid(N, triads=[]) {
 	const RESET_COLOR = "\x1b[0m"
 	const colors = ["\x1b[31m", "\x1b[30m", "\x1b[31m", "\x1b[32m", "\x1b[33m", "\x1b[34m", "\x1b[35m", "\x1b[36m", "\x1b[37m"]
 
-	const SPACE = '   '
+	const SPACE = ' '
 
 	triads.forEach((triad, i) => {
 		triad.forEach(num => {
 			map[num] = colors[i % colors.length]
-			const digits = (num+"").length
-			map[num] += num;
-			map[num] += " ".repeat(Math.max(0, SPACE.length-digits))
+			if (symbol == "NUM") {
+				const digits = (num+"").length
+				map[num] += num;
+				map[num] += " ".repeat(Math.max(0, SPACE.length-digits))	
+			} else {
+				map[num] += "•";
+			}
 			map[num] += RESET_COLOR
 		})
 	})
@@ -150,20 +151,20 @@ function printTriangularGrid(N, triads=[]) {
 	grid.forEach((row, rowNo) => {
 		const spaces = (N-rowNo-1);
 		process.stdout.write(SPACE.repeat(spaces));
-		// if (spaces % 2 == 1) {
-		// 	process.stdout.write('\t')
-		// }
 		process.stdout.write(row.map(n => map[n] || n).join(SPACE));
 		process.stdout.write('\n');
 	})
 }
 
-Array(30).fill().map((_, n) => {
+const PRINT_SOLUTIONS = true;
+
+const results = Array(49).fill().map((_, n) => {
 	let N = n+2
 	let start = process.hrtime()
-	const { works, triads } = findTriads(N); 
+	const { works, triads, runs } = findTriads(N); 
 	let end = process.hrtime(start)
-	console.log(`${N}\t${works}\t${1000 * end[0] + end[1] / 1000000}ms`);
-	if (works) printTriangularGrid(N, triads)
+	const stats = [N, works?1:0, 1000 * end[0] + end[1] / 1000000, runs];
+	if (works && PRINT_SOLUTIONS) printTriangularGrid(N, triads)
+	console.log(`${N}\t${works}\t${stats[2]}ms\t${runs}`);
+	return stats;
 });
-

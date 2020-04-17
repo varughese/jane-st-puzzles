@@ -55,3 +55,62 @@ Experimentally, I was able to solve for N<20, but then for probably the first ti
 
 It also makes cool art:
 ![](./triads.png)
+
+What is interesting is that when there solutions, they are found very fast. There are always at least two solutions, because you can mirror a solution and still have one. I figure there might be more, so in my recursive call, I capped the recursive calls to 900000.
+
+```c
+2       true    0.602138ms      3
+3       false   0.062141ms      4
+4       false   0.003768ms      0
+5       false   0.022393ms      20
+6       false   0.015033ms      39
+7       false   0.004234ms      0
+8       false   0.076065ms      165
+9       true    0.073596ms      93
+10      false   0.01128ms       0
+11      true    0.718814ms      175
+12      true    0.148022ms      219
+13      false   0.022603ms      0
+14      true    0.185614ms      410
+15      false   29.243183ms     161144
+16      false   0.017909ms      0
+17      false   65.073839ms     2662475
+18      false   209.543367ms    9000014
+19      false   0.020611ms      0
+20      false   210.772252ms    9000023
+21      true    0.886985ms      2892
+22      false   0.028992ms      0
+23      true    2.693771ms      5337
+24      true    3.81632ms       7166
+25      false   0.065817ms      0
+26      true    5.102339ms      13671
+27      false   188.803518ms    9000045
+28      false   0.062354ms      0
+29      false   187.266062ms    9000062
+30      false   187.56116ms     9000058
+31      false   0.059807ms      0
+32      false   179.578829ms    9000069
+33      true    2.796565ms      107985
+34      false   0.054795ms      0
+35      true    6.166143ms      203361
+36      true    7.159246ms      279533
+37      false   0.011902ms      0
+38      true    10.805678ms     532840
+39      false   194.507512ms    9000110
+40      false   0.012957ms      0
+```
+
+2 + 9 + 11 + 12 + 14 + 21 + 23 + 24 + 26 + 33 + 35 + 36 + 38 = 284.
+
+Looking at the true ones, there is a pattern.
+```
+2  __ __ __ __ __ __ 9  __ 11 12 __ 14 __ __ __ __ __ __ 21 __ 23 24 __ 26 __ __ __ __ __ __ 33 __35 36 __ 38 __ __
+```
+Starting from 9, the next is skipped, then two true in a row, then the next is skipped, then true, then 6 are skipped, and then it repeats. 45 for example was able to be found.
+
+Another interesting thing is that you can write triangular numbers as other triangular numbers. T(9) = 3 * T(4) + T(5). If you split a triangular grid into smaller subsections of triangles
+this is easier to see. 
+
+Similarly, if you know that N=11 and N=12 are solutions, then you know 23 (11+11+1) is a solution. This because you can split a triangular grid when N=23 into 3 N=11 triangles and a N=12 triangle.
+
+So there are a ton of cool patterns. Curious if there is some sort of mathematical proof 

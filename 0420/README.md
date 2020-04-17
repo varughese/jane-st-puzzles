@@ -3,3 +3,6 @@ Consider an equilateral triangular grid of dots with N rows, such as the one pre
 For some values of N, it is possible to separate the triangular grid into disjoint triads such that every dot is a part of one triad. For example, it is obviously possible when N=2, but not when N=3 or N=4.
 
 What is the sum of all values of N < 40 for which it is possible?
+
+
+https://www.janestreet.com/puzzles/triads/
