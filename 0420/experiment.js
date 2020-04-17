@@ -20,7 +20,8 @@ next is 3
 This is like O(2^n) though, because at every choice, if you mess up, you neeed to try it a while. unsure if DP would help, need to spend a few more hours on it
 */
 
-let N = 24;
+
+let findTriads = (N) =>  {
 
 function generateGraph(N) {
 	const graph = [];
@@ -49,15 +50,10 @@ function generateGraph(N) {
 const lastDot = N * (N+1) / 2; // Formula for Nth triangular number
 const used = new Array(lastDot);
 
-if ((lastDot+1) % 3 == 0) {
-	console.log(N + ": False");
-	return false;
-}
-
 const graph = generateGraph(N);
 
 const triads = [];
-let currentTriad = 0;
+
 function recurseTriad(used, dot) {
 	if (dot == lastDot-1) {
 		return used.filter(u => !u).length == 0; 
@@ -68,43 +64,58 @@ function recurseTriad(used, dot) {
 	used[dot] = true;
 	const connected = graph[dot];
 	if (connected.length == 1) {
+		used[dot] = false;
 		return false;
 	}
 	if (connected.length == 2) {
 		const [left, right] = connected;
 		if (!used[left] && !used[right]) {
-			used[left] = true;
-			used[right] = true;
+			used[left] = used[right] = true;
 			if(recurseTriad(used, dot + 1)) {
 				triads.push([dot, left, right])
 				return true;
+			} else {
+				used[left] = used[right] = false;
 			}
 		}
+		used[dot] = false;
 		return false;
 	} else {
 		const [right, bleft, bright] = connected;
-		const usedCopy = [...used];
 		let success = false;
 		if (!used[right] && !used[bright]) {
-			used[right] = true;
-			used[bright] = true;
+			used[right] = used[bright] = true;
 			success = recurseTriad(used, dot+1);
 			if (success) {
 				triads.push([dot, right, bright])
 				return true;
 			}
+			used[right] = used[bright] = false;
 		}
-		used = usedCopy;
 		if (!used[bright] && !used[bleft]) {
-			used[bright] = true;
-			used[bleft] = true;
+			used[bright] = used[bleft] = true;
 			if(recurseTriad(used, dot+1)) {
 				triads.push([dot, bleft, bright])
 				return true;
 			}
+			used[bright] = used[bleft] = false;
 		}
+		used[dot] = false;
 		return false;
 	}
+}
+
+if ((lastDot+1) % 3 == 0) {
+	console.log(N + ": False");
+	return false;
+}
+
+const works = recurseTriad(used, 0);
+return {
+	works,
+	triads,
+}
+
 }
 
 function printTriangularGrid(N, triads=[]) {
@@ -123,19 +134,18 @@ function printTriangularGrid(N, triads=[]) {
 	const map = {};
 	const RESET_COLOR = "\x1b[0m"
 	const colors = ["\x1b[31m", "\x1b[30m", "\x1b[31m", "\x1b[32m", "\x1b[33m", "\x1b[34m", "\x1b[35m", "\x1b[36m", "\x1b[37m"]
-	// const bgColors = ["\x1b[40m", "\x1b[41m", "\x1b[42m", "\x1b[43m","\x1b[44m", "\x1b[45m", "\x1b[46m", "\x1b[47m"]
+
+	const SPACE = '   '
 
 	triads.forEach((triad, i) => {
 		triad.forEach(num => {
 			map[num] = colors[i % colors.length]
 			const digits = (num+"").length
 			map[num] += num;
-			map[num] += " ".repeat(Math.max(0, 3-digits))
+			map[num] += " ".repeat(Math.max(0, SPACE.length-digits))
 			map[num] += RESET_COLOR
 		})
 	})
-
-	const SPACE = '   '
 
 	grid.forEach((row, rowNo) => {
 		const spaces = (N-rowNo-1);
@@ -148,7 +158,12 @@ function printTriangularGrid(N, triads=[]) {
 	})
 }
 
-const works = recurseTriad(used, 0);
-console.log(N + " WORKS: " + works);
-printTriangularGrid(N, triads)
+Array(30).fill().map((_, n) => {
+	let N = n+2
+	let start = process.hrtime()
+	const { works, triads } = findTriads(N); 
+	let end = process.hrtime(start)
+	console.log(`${N}\t${works}\t${1000 * end[0] + end[1] / 1000000}ms`);
+	if (works) printTriangularGrid(N, triads)
+});
 
